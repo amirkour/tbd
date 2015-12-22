@@ -9,7 +9,7 @@ module.exports = function(grunt) {
         // will provide linting and build-time hints/errors/warnings
         // for the specified js files
         'jshint': {
-            'files': ['Gruntfile.js', 'app.js', 'src/**/*.js']
+            'files': ['Gruntfile.js', 'app.js', 'src/**/*.js', 'test/**/*.js']
         },
 
         // pack-up CJS-style modules into a bundle that'll get loaded/used
