@@ -3,6 +3,7 @@ var express = require('express'),
     fs = require('fs'),
     stylus = require('stylus'),
     bodyparser = require('body-parser'),
+    Graph = require('./src/graph'),
 
     // the port this app will be listening on
     port = process.argv[2] || 3000,
