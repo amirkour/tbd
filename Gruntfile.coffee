@@ -6,7 +6,7 @@ module.exports = (grunt) ->
 
     grunt.initConfig
         jshint:
-            files: ['Gruntfile.js', 'app.js', 'src/**/*.js', 'test/**/*.js']
+            files: ['Gruntfile.js', 'lib/**/*.js', 'test/**/*.js']
 
         browserify:
             default:
