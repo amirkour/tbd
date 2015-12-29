@@ -20,14 +20,14 @@ You have no choice but to iterate on both lists and ensure that
 neither is a sub/super-set of the other.
 ###
 Graph.prototype.equals = (other) ->
-    return false if not other instanceof Graph
+    return false unless other instanceof Graph
 
     # first, ensure both objects have lists - if either is missing
     # a list of nodes or edges, equality is already moot.
-    return false if not this.nodes instanceof Array and other.nodes instanceof Array
-    return false if this.nodes instanceof Array and not other.nodes instanceof Array
-    return false if not this.edges instanceof Array and other.edges instanceof Array
-    return false if this.edges instanceof Array and not other.edges instanceof Array
+    return false if not (this.nodes instanceof Array) and other.nodes instanceof Array
+    return false if this.nodes instanceof Array and not (other.nodes instanceof Array)
+    return false if not (this.edges instanceof Array) and other.edges instanceof Array
+    return false if this.edges instanceof Array and not (other.edges instanceof Array)
 
     for next_node in this.nodes
         found = false
