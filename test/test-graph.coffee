@@ -226,11 +226,45 @@ describe "Graph", ->
 
     # #add_node
 
-    # describe "#add_edge", ->
-    #     it "adds the given edge", ->
+    describe "#add_edge", ->
+        it "adds the given edge", ->
+            edge = new GraphEdge
+                node_one: new GraphNode({x:1,y:2})
+                node_two: new GraphNode({x:3,y:5})
+            graph = new Graph
 
-    #     it "doesn't permit dupe edges", ->
+            assert.lengthOf graph.edges, 0
+            assert.lengthOf graph.add_edge(edge).edges, 1
+            assert graph.edges[0] is edge
 
-    #     it "also adds the given nodes", ->
+        it "doesn't add the same edge twice", ->
+            edge = new GraphEdge
+                node_one: new GraphNode({x:1,y:2})
+                node_two: new GraphNode({x:3,y:5})
+            graph = new Graph({edges: [edge] })
+
+            graph.add_edge edge
+            assert.lengthOf graph.edges, 1
+
+        it "also adds the given nodes", ->
+            node1 = new GraphNode({x:123,y:234})
+            node2 = new GraphNode({x:3453,y:998})
+            edge = new GraphEdge
+                node_one:node1
+                node_two:node2
+
+            graph = new Graph
+            assert.lengthOf graph.nodes, 0
+
+            graph.add_edge edge
+            assert.lengthOf graph.nodes, 2
+
+            assert graph.nodes[0] is node1 or graph.nodes[1] is node1
+            assert graph.nodes[0] is node2 or graph.nodes[1] is node2
+
+        it "returns the graph", ->
+            graph = new Graph
+            assert graph.add_edge(graph) is graph
+            assert graph.add_edge() is graph
 
     # #add_edge

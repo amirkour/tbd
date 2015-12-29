@@ -18,7 +18,8 @@ Graph = (options) ->
 add_node
 
 add the given node, only if it's a GraphNode, and return this
-so chaining can occur
+so chaining can occur.  will not add the node if it's already
+in the graph.
 ###
 Graph.prototype.add_node = (node) ->
     return this unless node instanceof GraphNode
@@ -27,6 +28,24 @@ Graph.prototype.add_node = (node) ->
         return this if next.equals node
 
     @nodes.push node
+    return this
+
+###
+add_edge
+
+add the given edge to the graph, only if it's a GraphEdge, and
+return this so chaining can occur.  will not add the given edge
+if it's already in the graph.
+###
+Graph.prototype.add_edge = (edge) ->
+    return this unless edge instanceof GraphEdge
+    @edges = [] unless @edges instanceof Array
+    for next in @edges
+        return this if next.equals(edge)
+
+    this.add_node(edge.node_one)
+        .add_node(edge.node_two)
+    @edges.push(edge)
     return this
 
 ###
