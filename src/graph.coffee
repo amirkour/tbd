@@ -8,8 +8,11 @@ Defines a basic, non-directed graph
 ###
 Graph = (options) ->
     options = options or {};
-    this.nodes = (options.nodes or [])
-    this.edges = (options.edges or [])
+    @nodes = (options.nodes or [])
+    @edges = (options.edges or [])
+    return # again, need to explicitly return here, because when options.edges
+           # actually contains something non-null, it's being returned instead
+           # of 'this'
 
 ###
 equals
@@ -24,12 +27,12 @@ Graph.prototype.equals = (other) ->
 
     # first, ensure both objects have lists - if either is missing
     # a list of nodes or edges, equality is already moot.
-    return false if not (this.nodes instanceof Array) and other.nodes instanceof Array
-    return false if this.nodes instanceof Array and not (other.nodes instanceof Array)
-    return false if not (this.edges instanceof Array) and other.edges instanceof Array
-    return false if this.edges instanceof Array and not (other.edges instanceof Array)
+    return false if not (@nodes instanceof Array) and other.nodes instanceof Array
+    return false if @nodes instanceof Array and not (other.nodes instanceof Array)
+    return false if not (@edges instanceof Array) and other.edges instanceof Array
+    return false if @edges instanceof Array and not (other.edges instanceof Array)
 
-    for next_node in this.nodes
+    for next_node in @nodes
         found = false
         for other_node in other.nodes
             if next_node.equals other_node
@@ -38,7 +41,7 @@ Graph.prototype.equals = (other) ->
 
         return false if not found
 
-    for next_edge in this.edges
+    for next_edge in @edges
         found = false
         for other_edge in other.edges
             if next_edge.equals other_edge
@@ -49,7 +52,7 @@ Graph.prototype.equals = (other) ->
 
     for other_node in other.nodes
         found = false;
-        for this_node in this.nodes
+        for this_node in @nodes
             if other_node.equals this_node
                 found = true
                 break;
@@ -58,7 +61,7 @@ Graph.prototype.equals = (other) ->
 
     for other_edge in other.edges
         found = false;
-        for this_edge in this.edges
+        for this_edge in @edges
             if other_edge.equals this_edge
                 found = true
                 break

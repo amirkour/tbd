@@ -7,11 +7,11 @@ edge makes no sense w/o exactly 2 graph nodes to define it.
 GraphNode = require './graph-node'
 
 GraphEdge = (options) ->
-    this.node_one = if options and options.node_one then options.node_one else null
-    this.node_two = if options and options.node_two then options.node_two else null
-    this # this was a weird bug - in the cases when options.node_two is a GraphNode,
-         # if you don't explicitly return 'this', then options.node_two was getting
-         # returned (instead of this) ... so, just gonna explicitly return 'this' for now
+    @node_one = if options and options.node_one then options.node_one else null
+    @node_two = if options and options.node_two then options.node_two else null
+    return # this was a weird bug - in the cases when options.node_two is a GraphNode,
+           # if you don't explicitly return, then options.node_two was getting
+           # returned (instead of this) ... so, just gonna explicitly return
 
 ###
 equals
@@ -25,11 +25,11 @@ GraphEdge.prototype.equals = (other) ->
     return false if other not instanceof GraphEdge
     return false unless other.node_one instanceof GraphNode
     return false unless other.node_two instanceof GraphNode
-    return false unless this.node_one instanceof GraphNode
-    return false unless this.node_two instanceof GraphNode
+    return false unless @node_one instanceof GraphNode
+    return false unless @node_two instanceof GraphNode
 
-    return ((this.node_one.equals(other.node_one) and this.node_two.equals(other.node_two)) or
-            (this.node_two.equals(other.node_one) and this.node_one.equals(other.node_two)))
+    return ((@node_one.equals(other.node_one) and @node_two.equals(other.node_two)) or
+            (@node_two.equals(other.node_one) and @node_one.equals(other.node_two)))
 
 
 module.exports = GraphEdge
