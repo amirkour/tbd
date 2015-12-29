@@ -9,7 +9,9 @@ GraphNode = require './graph-node'
 GraphEdge = (options) ->
     this.node_one = if options and options.node_one then options.node_one else null
     this.node_two = if options and options.node_two then options.node_two else null
-    this
+    this # this was a weird bug - in the cases when options.node_two is a GraphNode,
+         # if you don't explicitly return 'this', then options.node_two was getting
+         # returned (instead of this) ... so, just gonna explicitly return 'this' for now
 
 ###
 equals
