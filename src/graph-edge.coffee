@@ -9,6 +9,7 @@ GraphNode = require './graph-node'
 GraphEdge = (options) ->
     this.node_one = if options and options.node_one then options.node_one else null
     this.node_two = if options and options.node_two then options.node_two else null
+    this
 
 ###
 equals
@@ -20,11 +21,13 @@ makes no sense - an undirected edge can't exist w/o 2 nodes!
 ###
 GraphEdge.prototype.equals = (other) ->
     return false if other not instanceof GraphEdge
-    return false if not other.node_one instanceof GraphNode or not other.node_two instanceof GraphNode
-    return false if not this.node_one instanceof GraphNode or not this.node_two instanceof GraphNode
+    return false unless other.node_one instanceof GraphNode
+    return false unless other.node_two instanceof GraphNode
+    return false unless this.node_one instanceof GraphNode
+    return false unless this.node_two instanceof GraphNode
 
-    return (this.node_one.equals(other.node_one) and this.node_two.equals(other.node_two)) or
-           (this.node_two.equals(other.node_one) and this.node_one.equals(other.node_two))
+    return ((this.node_one.equals(other.node_one) and this.node_two.equals(other.node_two)) or
+            (this.node_two.equals(other.node_one) and this.node_one.equals(other.node_two)))
 
 
 module.exports = GraphEdge
