@@ -25,7 +25,7 @@ describe 'GraphEdge', ->
             it "returns false, regardless of order", ->
                 edge_one = new GraphEdge({node_one: this.node_one, node_two: this.node_two})
                 edge_two = new GraphEdge({node_one:null,node_two:this.node_one})
-                debugger
+                
                 assert not edge_one.equals(edge_two)
                 assert not edge_two.equals(edge_one)
 
