@@ -192,24 +192,38 @@ describe "Graph", ->
             node1 = new GraphNode
                 x:1
                 y:2
+            node2 = new GraphNode({x:123,y:23234})
 
             graph = new Graph
-                nodes: [node1]
+                nodes: [node1, node2]
 
-            assert.lengthOf graph.nodes, 1
+            assert.lengthOf graph.nodes, 2
             graph.add_node node1
-            assert.lengthOf graph.nodes, 1
+            assert.lengthOf graph.nodes, 2
+            graph.add_node node2
+            assert.lengthOf graph.nodes, 2
 
         it "only adds GraphNodes", ->
             graph = new Graph
-            assert.lengthOf graph.add_node(null).nodes, 0
-            assert.lengthOf graph.add_node({}).nodes, 0
-            assert.lengthOf graph.add_node("hi there").nodes, 0
-            assert.lengthOf graph.add_node(new GraphNode).nodes, 1
 
-        it "returns the graph, so you can chain like a boss", ->
+            graph.add_node(1)
+            assert.lengthOf graph.nodes, 0
+
+            graph.add_node({})
+            assert.lengthOf graph.nodes, 0
+
+            graph.add_node("hi there")
+            assert.lengthOf graph.nodes, 0
+
+            graph.add_node(new GraphNode)
+            assert.lengthOf graph.nodes, 1
+
+        it "returns the graph, so chaining can occur", ->
             graph = new Graph
-            assert(graph.add_node() is graph)
+            assert graph.add_node() instanceof Graph
+            assert graph.add_node() is graph
+            assert graph.add_node(new GraphNode) is graph
+
     # #add_node
 
     # describe "#add_edge", ->
