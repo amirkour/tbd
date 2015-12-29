@@ -1,3 +1,5 @@
+_ = require 'lodash'
+sinon = require 'sinon'
 GraphNode = require '../src/graph-node'
 GraphEdge = require '../src/graph-edge'
 Graph = require '../src/graph'
@@ -268,3 +270,146 @@ describe "Graph", ->
             assert graph.add_edge() is graph
 
     # #add_edge
+
+    describe "#get_neighbors", ->
+        beforeEach ->
+            @graph = new Graph
+            for i in [0..2]
+                for j in [0..2]
+                    @graph.add_node new GraphNode
+                        x:j
+                        y:i
+
+        it "returns 2 neighbors for corner nodes", ->
+            corner = new GraphNode
+                x:0
+                y:0
+            expected_neighbor1 = new GraphNode
+                x:1
+                y:0
+            expected_neighbor2 = new GraphNode
+                x:0
+                y:1
+
+            neighbors = @graph.get_neighbors corner
+
+            assert.lengthOf(neighbors, 2)
+
+            found = _.find(neighbors, (neighbor) ->
+                neighbor.equals expected_neighbor1
+            )
+            assert found.equals(expected_neighbor1)
+
+            found = _.find(neighbors, (neighbor) ->
+                neighbor.equals expected_neighbor2
+            )
+            assert found.equals(expected_neighbor2)
+
+
+        it "returns 3 neighbors for edge-nodes that aren't in a corner", ->
+            edge_node = new GraphNode
+                x:1
+                y:2
+            expected_neighbor1 = new GraphNode
+                x:0
+                y:2
+            expected_neighbor2 = new GraphNode
+                x:2
+                y:2
+            expected_neighbor3 = new GraphNode
+                x:1
+                y:1
+
+            neighbors = @graph.get_neighbors edge_node
+            assert.lengthOf neighbors, 3
+
+            found = _.find(neighbors, (neighbor) -> neighbor.equals(expected_neighbor1))
+            assert(found.equals(expected_neighbor1))
+
+            found = _.find(neighbors, (neighbor) -> neighbor.equals(expected_neighbor2))
+            assert(found.equals(expected_neighbor2))
+
+            found = _.find(neighbors, (neighbor) -> neighbor.equals(expected_neighbor3))
+            assert(found.equals(expected_neighbor3))
+
+        it "returns 4 neighbors for non-edge, non-corner nodes", ->
+            middle_node = new GraphNode
+                x:1
+                y:1
+            expected_neighbor1 = new GraphNode
+                x:0
+                y:1
+            expected_neighbor2 = new GraphNode
+                x:1
+                y:0
+            expected_neighbor3 = new GraphNode
+                x:2
+                y:1
+            expected_neighbor4 = new GraphNode
+                x:1
+                y:2
+
+            neighbors = @graph.get_neighbors middle_node
+            assert.lengthOf neighbors, 4
+
+            found = _.find(neighbors, (neighbor) -> neighbor.equals(expected_neighbor1))
+            assert(found.equals(expected_neighbor1))
+
+            found = _.find(neighbors, (neighbor) -> neighbor.equals(expected_neighbor2))
+            assert(found.equals(expected_neighbor2))
+
+            found = _.find(neighbors, (neighbor) -> neighbor.equals(expected_neighbor3))
+            assert(found.equals(expected_neighbor3))
+
+            found = _.find(neighbors, (neighbor) -> neighbor.equals(expected_neighbor4))
+            assert(found.equals(expected_neighbor4))
+
+        it "passes the neighbors to a callback function if provided", ->
+            middle_node = new GraphNode
+                x:1
+                y:1
+            expected_neighbor1 = new GraphNode
+                x:0
+                y:1
+            expected_neighbor2 = new GraphNode
+                x:1
+                y:0
+            expected_neighbor3 = new GraphNode
+                x:2
+                y:1
+            expected_neighbor4 = new GraphNode
+                x:1
+                y:2
+
+            spy = sinon.spy()
+            neighbors = @graph.get_neighbors middle_node, spy
+            
+            assert.lengthOf neighbors, 4
+            assert spy.callCount is 4
+            assert spy.alwaysCalledOn(@graph)
+            assert spy.calledWith(expected_neighbor1)
+            assert spy.calledWith(expected_neighbor2)
+            assert spy.calledWith(expected_neighbor3)
+            assert spy.calledWith(expected_neighbor4)
+
+        it "returns an empty list for nodes without neighbors", ->
+            graph = new Graph
+            node_without_neighbors = new GraphNode
+                x:5
+                y:123
+            neighbors = graph.get_neighbors node_without_neighbors
+            assert.lengthOf neighbors, 0
+
+            graph.add_node new GraphNode
+                x:0
+                y:0
+            neighbors = graph.get_neighbors node_without_neighbors
+            assert.lengthOf neighbors, 0
+
+        it "returns an empty list for anything else", ->
+            assert.lengthOf @graph.get_neighbors(null), 0
+            assert.lengthOf @graph.get_neighbors(undefined), 0
+            assert.lengthOf @graph.get_neighbors("hi there"), 0
+            assert.lengthOf @graph.get_neighbors({}), 0
+            
+    # #get_neighbors

@@ -49,6 +49,26 @@ Graph.prototype.add_edge = (edge) ->
     return this
 
 ###
+get_neighbors
+
+helper that returns a list of all neighbors for the given
+node in this graph, or an empty list if none exist or if
+the given node is not a GraphNode.  passes each
+successive resulting neighbor to the given callback if
+provided.
+###
+Graph.prototype.get_neighbors = (node, cb) ->
+    return [] unless node instanceof GraphNode
+    @nodes = [] unless @nodes instanceof Array
+
+    neighbors = (next for next in @nodes when next.is_neighbor_to(node))
+    if typeof cb is 'function'
+        for neighbor in neighbors
+            cb.call(this, neighbor)
+            
+    neighbors
+
+###
 equals
 
 In order for two graphs to be considered equal,
