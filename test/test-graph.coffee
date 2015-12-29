@@ -174,7 +174,7 @@ describe "Graph", ->
     # #equals
 
     describe "#add_node", ->
-        it "adds the given node, regardless of whether or not it's already in the graph", ->
+        it "adds the given node", ->
             node1 = new GraphNode
                 x:1
                 y:2
@@ -183,15 +183,40 @@ describe "Graph", ->
                 nodes: []
 
             assert.lengthOf graph.nodes, 0
-
             graph.add_node node1
             assert.lengthOf graph.nodes, 1
             assert(graph.nodes[0].equals(node1))
 
+        it "doesn't add the same node twice", ->
+
+            node1 = new GraphNode
+                x:1
+                y:2
+
+            graph = new Graph
+                nodes: [node1]
+
+            assert.lengthOf graph.nodes, 1
             graph.add_node node1
-            assert.lengthOf graph.nodes, 2
+            assert.lengthOf graph.nodes, 1
+
+        it "only adds GraphNodes", ->
+            graph = new Graph
+            assert.lengthOf graph.add_node(null).nodes, 0
+            assert.lengthOf graph.add_node({}).nodes, 0
+            assert.lengthOf graph.add_node("hi there").nodes, 0
+            assert.lengthOf graph.add_node(new GraphNode).nodes, 1
 
         it "returns the graph, so you can chain like a boss", ->
             graph = new Graph
             assert(graph.add_node() is graph)
     # #add_node
+
+    # describe "#add_edge", ->
+    #     it "adds the given edge", ->
+
+    #     it "doesn't permit dupe edges", ->
+
+    #     it "also adds the given nodes", ->
+
+    # #add_edge

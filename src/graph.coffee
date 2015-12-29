@@ -22,8 +22,11 @@ so chaining can occur
 ###
 Graph.prototype.add_node = (node) ->
     return this unless node instanceof GraphNode
-    this.nodes = [] unless this.nodes instanceof Array
-    this.nodes.push node
+    @nodes = [] unless @nodes instanceof Array
+    for next in @nodes
+        return this if next.equals node
+
+    @nodes.push node
     return this
 
 ###
