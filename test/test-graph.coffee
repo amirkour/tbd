@@ -172,3 +172,26 @@ describe "Graph", ->
             assert(graph1.equals(graph2))
             assert(graph2.equals(graph1))
     # #equals
+
+    describe "#add_node", ->
+        it "adds the given node, regardless of whether or not it's already in the graph", ->
+            node1 = new GraphNode
+                x:1
+                y:2
+
+            graph = new Graph
+                nodes: []
+
+            assert.lengthOf graph.nodes, 0
+
+            graph.add_node node1
+            assert.lengthOf graph.nodes, 1
+            assert(graph.nodes[0].equals(node1))
+
+            graph.add_node node1
+            assert.lengthOf graph.nodes, 2
+
+        it "returns the graph, so you can chain like a boss", ->
+            graph = new Graph
+            assert(graph.add_node() is graph)
+    # #add_node

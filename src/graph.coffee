@@ -15,6 +15,18 @@ Graph = (options) ->
            # of 'this'
 
 ###
+add_node
+
+add the given node, only if it's a GraphNode, and return this
+so chaining can occur
+###
+Graph.prototype.add_node = (node) ->
+    return this unless node instanceof GraphNode
+    this.nodes = [] unless this.nodes instanceof Array
+    this.nodes.push node
+    return this
+
+###
 equals
 
 In order for two graphs to be considered equal,
