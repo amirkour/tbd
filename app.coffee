@@ -3,9 +3,7 @@ path = require 'path'
 fs = require 'fs'
 stylus = require 'stylus'
 bodyparser = require 'body-parser'
-
-# todo - add back Graph requirement, once it's ported over to coffeescript
-# Graph = require './src/graph'
+Graph = require './lib/graph'
 
 # the port this app will be listening on
 port = process.argv[2] or 3000

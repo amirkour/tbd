@@ -2,11 +2,11 @@
 // node modules to the browser.
 
 var GraphNode = require('../lib/graph-node')
-    // GraphEdge = require('./graph-edge'),
-    // Graph = require('./graph');
+    GraphEdge = require('../lib/graph-edge'),
+    Graph = require('../lib/graph');
 
 (function(window){
     window.GraphNode = GraphNode;
-    // window.GraphEdge = GraphEdge;
-    // window.Graph = Graph;
+    window.GraphEdge = GraphEdge;
+    window.Graph = Graph;
 })(window);
