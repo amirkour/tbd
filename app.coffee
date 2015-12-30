@@ -59,7 +59,7 @@ app.get "/search", (req,res) ->
 # test out a template!
 app.get '/home', (req,res) ->
     console.log("/home")
-    res.render('index', {date: new Date().toDateString()})
+    res.render('home/index', {date: new Date().toDateString()})
 
 # parse/barf form params!
 app.post '/form', (req,res) ->
