@@ -1,11 +1,15 @@
 extends ../layout.jade
 
 block body
-    div#main
+    div#body
 
     script(type="text/javascript", src="/spa-bundle.js")
 
     div#templates(style="display:none;")
+        script(type="text/template")#root-view-template
+            div#errors
+            div#main
+
         script(type="text/template")#homepage-template
             div
                 p.green hi world, my name is: {{name}}
@@ -15,16 +19,32 @@ block body
         (function(window,$,_,handlebars,backbone,marionette,undefined){
 
             var $templates = $("#templates")
-            var Homepage = backbone.View.extend({
-                el: "#main",
+            
+            var RootLayout = marionette.LayoutView.extend({
+                el: '#body',
+                template: handlebars.compile( $templates.find('#root-view-template').html() ),
+                regions:{
+                    'errors': '#errors',
+                    'main': '#main'
+                }
+            });
+
+            var Homepage = marionette.ItemView.extend({
                 template: handlebars.compile( $templates.find("#homepage-template").html() ),
                 initialize: function(){
                     this.model = new backbone.Model({name: 'amir'});
-                },
-                render:function(){
-                    this.$el.html( this.template( this.model.toJSON() ) );
                 }
             });
+
+            var Application = marionette.Application.extend({
+                    initialize: function(options){
+                        options = options || {};
+                        this.rootView = options.rootView || new RootLayout();
+                    }
+                }),
+
+                // immediately initialize the app, so it can be used in the router ...
+                app = new Application();
 
             var Router = backbone.Router.extend({
                 routes:{
@@ -33,11 +53,17 @@ block body
 
                 "home": function(){
                     console.log("hi from the home route");
-                    new Homepage().render();
+                    app.rootView.render();
+                    app.rootView.getRegion('main').show(new Homepage());
                 }
             });
 
-            new Router();
-            backbone.history.start();
+            app.on('start',function(){
+                new Router();
+                backbone.history.start();
+            });
+
+            app.start();
+
         })(window,jQuery,_,Handlebars,Backbone,Marionette);
     
