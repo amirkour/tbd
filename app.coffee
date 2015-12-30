@@ -77,5 +77,8 @@ app.post '/form', (req,res) ->
     strReversed = req.body.str.split('').reverse().join('')
     res.end(strReversed)
 
+app.get "/", (req,res) ->
+    res.render 'index'
+
 console.log('listening on port ' + port)
 app.listen(port)
