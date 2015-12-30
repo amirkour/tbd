@@ -13,8 +13,8 @@ port = process.argv[2] or 3000
 absolutePathToPublicAssets = process.argv[3] or path.join __dirname, 'public'
 
 # this has to be the fully-qualified path to a folder, typically "/templates",
-# where view templates will be found
-absolutePathToTemplateFolder = process.argv[4] or path.join __dirname, 'templates'
+# (in this case: /views) where view templates will be found
+absolutePathToTemplateFolder = process.argv[4] or path.join __dirname, 'views'
 app = express()
 
 # To parse x-www-form-urlencoded request bodies Express.js can use urlencoded()
