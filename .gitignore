@@ -29,5 +29,8 @@ node_modules
 # compiled coffeescript goes here, ignore them
 lib/
 
+# compiled stylus css goes here, ignore them
+public/css
+
 # build-time browser files
 bundle.js
