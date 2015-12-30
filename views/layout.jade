@@ -5,10 +5,13 @@ html
             title TBD
         
         block stylesheets
-            link(rel='stylesheet', type='text/css', href='/main.css')
+            link(rel='stylesheet', type='text/css', href='/css/main.css')
 
         block header-scripts
     body
+        block nav
+            include nav.jade
+
         block body
 
         block footer
