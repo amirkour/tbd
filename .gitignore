@@ -33,4 +33,4 @@ lib/
 public/css
 
 # build-time browser files
-bundle.js
+public/*bundle.js
