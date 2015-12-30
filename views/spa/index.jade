@@ -1,9 +1,43 @@
 extends ../layout.jade
 
 block body
-    div hi, this is an spa
+    div#main
 
     script(type="text/javascript", src="/spa-bundle.js")
+
+    div#templates(style="display:none;")
+        script(type="text/template")#homepage-template
+            div
+                p.green hi world, my name is: {{name}}
+
     script(type="text/javascript").
-        console.log('hi world');
+
+        (function(window,$,_,handlebars,backbone,marionette,undefined){
+
+            var $templates = $("#templates")
+            var Homepage = backbone.View.extend({
+                el: "#main",
+                template: handlebars.compile( $templates.find("#homepage-template").html() ),
+                initialize: function(){
+                    this.model = new backbone.Model({name: 'amir'});
+                },
+                render:function(){
+                    this.$el.html( this.template( this.model.toJSON() ) );
+                }
+            });
+
+            var Router = backbone.Router.extend({
+                routes:{
+                    "": "home"
+                },
+
+                "home": function(){
+                    console.log("hi from the home route");
+                    new Homepage().render();
+                }
+            });
+
+            new Router();
+            backbone.history.start();
+        })(window,jQuery,_,Handlebars,Backbone,Marionette);
     
