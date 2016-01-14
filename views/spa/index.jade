@@ -8,6 +8,8 @@ block body
     div#templates(style="display:none;")
         script(type="text/template")#grid-view-template
             {{buildGridView}}
+            div
+                span#wall_building_label.display_none wall-building is now ON
 
         script(type="text/template")#root-view-template
             div#errors
@@ -106,6 +108,9 @@ block body
                     this.wall_mode = false;
 
                 },
+                ui:{
+                    "wall_building_label": "#wall_building_label"
+                },
                 events:{
 
                     // this'll bind to this.$el, and we can handle all the grid node 'clicks' there
@@ -150,21 +155,28 @@ block body
                     // only handle/delegate mouse-over events for grid nodes
                     if(this.eventTargetIsGridNode(e)) this.onGridNodeMouseOver(e.target);
                 },
+                turnWallBuildingOn:function(initiatingDiv){
+                    this.ui.wall_building_label.show();
+                    this.wall_mode = true;
+
+                    // also, treat the click as a mouse-over for the initiating node,
+                    // so that it's treated as a wall
+                    this.onGridNodeMouseOver(initiatingDiv);
+                },
+                turnWallBuildingOff:function(terminalDiv){
+                    this.ui.wall_building_label.hide();
+                    this.wall_mode = false;
+                },
                 onGridNodeClick: function(div){
                     
                     // if the user is already in 'wall' mode and then they click
                     // on a grid, then wall-mode should now toggle OFF
                     if(this.wall_mode === true){
-
-                        this.wall_mode = false;
+                        this.turnWallBuildingOff(div);
 
                     // otherwise, toggle wall-mode on
                     }else{
-                        this.wall_mode = true;
-
-                        // also, treat the click as a mouse-over for the initiating node,
-                        // so that it's treated as a wall
-                        this.onGridNodeMouseOver(div);
+                        this.turnWallBuildingOn(div);
                     }
                 },
                 onGridNodeMouseOver: function(div){
