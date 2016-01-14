@@ -1,5 +1,6 @@
-GraphNode = require './graph-node'
-GraphEdge = require './graph-edge'
+GraphUtils = require "./graph-utils"
+GraphNode = require "./graph-node"
+GraphEdge = require "./graph-edge"
 
 ###
 Graph
@@ -22,7 +23,7 @@ so chaining can occur.  will not add the node if it's already
 in the graph.
 ###
 Graph.prototype.add_node = (node) ->
-    return this unless node instanceof GraphNode
+    return this unless GraphUtils.quacks_like_a_graph_node(node)
     @nodes = [] unless @nodes instanceof Array
     for next in @nodes
         return this if next.equals node
@@ -38,7 +39,7 @@ return this so chaining can occur.  will not add the given edge
 if it's already in the graph.
 ###
 Graph.prototype.add_edge = (edge) ->
-    return this unless edge instanceof GraphEdge
+    return this unless GraphUtils.quacks_like_a_graph_edge(edge)
     @edges = [] unless @edges instanceof Array
     for next in @edges
         return this if next.equals(edge)
@@ -58,7 +59,7 @@ successive resulting neighbor to the given callback if
 provided.
 ###
 Graph.prototype.get_neighbors = (node, cb) ->
-    return [] unless node instanceof GraphNode
+    return [] unless GraphUtils.quacks_like_a_graph_node(node)
     @nodes = [] unless @nodes instanceof Array
 
     neighbors = (next for next in @nodes when next.is_neighbor_to(node))
@@ -77,7 +78,7 @@ You have no choice but to iterate on both lists and ensure that
 neither is a sub/super-set of the other.
 ###
 Graph.prototype.equals = (other) ->
-    return false unless other instanceof Graph
+    return false unless GraphUtils.quacks_like_a_graph(other)
 
     # first, ensure both objects have lists - if either is missing
     # a list of nodes or edges, equality is already moot.
