@@ -1,3 +1,5 @@
+GraphUtils = require './graph-utils'
+
 ###
 GraphNode
 
@@ -26,7 +28,7 @@ y (at 2,1) in the given grid:
 2 | . . . .
 ###
 GraphNode.prototype.is_left_neighbor_of = (neighbor) ->
-    return false unless neighbor instanceof GraphNode
+    return false unless GraphUtils.quacks_like_a_graph_node(neighbor)
     
     return (this.x is neighbor.x - 1) and (this.y is neighbor.y)
 
@@ -47,7 +49,7 @@ y (at 1,1) in the given grid:
 2 | . . . .
 ###
 GraphNode.prototype.is_right_neighbor_of = (neighbor) ->
-    return false unless neighbor instanceof GraphNode
+    return false unless GraphUtils.quacks_like_a_graph_node(neighbor)
     
     return (this.x is neighbor.x + 1) and (this.y is neighbor.y)
 
@@ -68,7 +70,7 @@ y (at 1,1) in the given grid:
 2 | . . . .
 ###
 GraphNode.prototype.is_top_neighbor_of = (neighbor) ->
-    return false unless neighbor instanceof GraphNode
+    return false unless GraphUtils.quacks_like_a_graph_node(neighbor)
     
     return (this.x is neighbor.x) and (this.y is neighbor.y - 1)
 
@@ -89,7 +91,7 @@ y (at 1,1) in the given grid:
 2 | . x . .
 ###
 GraphNode.prototype.is_bottom_neighbor_of = (neighbor) ->
-    return false unless neighbor instanceof GraphNode
+    return false unless GraphUtils.quacks_like_a_graph_node(neighbor)
     
     return (this.x is neighbor.x) and (this.y is neighbor.y + 1)
 
@@ -105,7 +107,7 @@ GraphNode.prototype.is_neighbor_to = (x,y) ->
     if typeof x is 'number'
         throw new Error("x and y must both be numbers - x was a number, but y was not!?") unless typeof y is 'number'
         neighbor = new GraphNode({x:x,y:y})
-    else if x instanceof GraphNode
+    else if GraphUtils.quacks_like_a_graph_node(x)
         neighbor = x
     else
         return false
@@ -122,7 +124,7 @@ returns true if the given object is a GraphNode that is
 equivalent to this one, false otherwise.
 ###
 GraphNode.prototype.equals = (other) ->
-    return false if other not instanceof GraphNode
+    return false unless GraphUtils.quacks_like_a_graph_node(other)
 
     return other.x is @x and other.y is @y
 
