@@ -4,6 +4,7 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks 'grunt-contrib-jshint'
     grunt.loadNpmTasks 'grunt-contrib-watch'
     grunt.loadNpmTasks 'grunt-browserify'
+    grunt.loadNpmTasks 'grunt-contrib-concat'
 
     grunt.initConfig
         jshint:
@@ -13,6 +14,20 @@ module.exports = (grunt) ->
             default:
                 src: 'src/graph-browser.js'
                 dest: 'public/bundle.js'
+
+        concat:
+            spa:
+                src: [
+                    'public/jquery-2.1.4.min.js'
+                    'public/underscore-1.8.3.min.js'
+                    'public/handlebars-v4.0.5.js'
+                    'public/underscore-1.8.3.min.js'
+                    'public/backbone-1.2.3.min.js'
+                    'public/marionette-2.4.4.min.js'
+                    'public/bundle.js'
+                ]
+                dest: 'public/spa-bundle.js'
+
 
         watch:
             files: ['<%= jshint.files %>'],
@@ -31,5 +46,6 @@ module.exports = (grunt) ->
                     ext: '.js'
                 ]
 
-    # grunt.registerTask 'default', ['coffee', 'jshint', 'browserify']
-    grunt.registerTask 'default', ['coffee', 'browserify']
+    # note: browserify has to come before concat, so that the browser-bound
+    # js bundles are ready to be concatenated
+    grunt.registerTask 'default', ['coffee', 'browserify', 'concat:spa']

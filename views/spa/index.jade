@@ -1,0 +1,277 @@
+extends ../layout.jade
+
+block body
+    div#body
+
+    script(type="text/javascript", src="/spa-bundle.js")
+
+    div#templates(style="display:none;")
+        script(type="text/template")#grid-view-template
+            {{buildGridView}}
+            div
+                span#wall_building_label.display_none wall-building is now ON
+
+        script(type="text/template")#root-view-template
+            div#errors
+            div#main
+                span.label Select a maze size
+                select#grid-dimension
+                    option(selected, value='')
+                    option(value='10') 10x10
+                    option(value='15') 15x15
+                div#main-body
+
+        script(type="text/template")#homepage-template
+            div
+                p.green hi world, my name is: {{name}}
+
+    script(type="text/javascript").
+
+        (function(window,$,_,handlebars,backbone,marionette,undefined){
+
+            var $templates = $("#templates"),
+                grid_node_classname = 'grid-node',
+                wall_node_classname = 'grid-wall';
+
+            /*
+             * handlebars.buildGridView
+             *
+             * handlebars helper that will build an html string that
+             * represents a grid of divs for the given graph.
+             */
+            handlebars.registerHelper('buildGridView', function() {
+
+                // 'this' is the GridView model, which is constructed in RootLayout
+                var graph = this.graph,
+                    grid_size = this.grid_size,
+                    nodes = graph.nodes,
+                    edges = graph.edges,
+                    i = 0,
+                    j = 0,
+                    html = '';
+                
+                for(i = 0; i < grid_size; i++){
+                    html += '<div class="grid-row">';
+                    for(j = 0; j < grid_size; j++){
+                        html += "<div class='" + grid_node_classname + "' id='" + j + "," + i + "' />";
+                    }
+                    html += "</div>";
+                }
+
+                return new handlebars.SafeString(html);
+            });
+
+            /*
+             * createNewGraph
+             *
+             * helper that creates a square graph with grid_sizeXgrid_size
+             * nodes, where each node has an edge to it's neighbors.
+             */
+            function createNewGraph(grid_size){
+                if(!grid_size) return;
+                if(grid_size <= 0) return;
+
+                var new_graph = new Graph(),
+                    next_node = null,
+                    prev_node = null,
+                    next_edge = null,
+                    i = 0,
+                    j = 0;
+
+                for(i = 0; i < grid_size; i++){
+                    prev_node = null;
+                    next_node = null;
+                    for(j = 1; j < grid_size; j++){
+                        if(prev_node == null){
+                            prev_node = new GraphNode({x: j-1, y: i});
+                        }else if(next_node == null){
+                            throw new Error("next_node shouldn't be null at this point ...");
+                        }else{
+                            prev_node = next_node;
+                        }
+
+                        next_node = new GraphNode({x: j, y: i});
+                        next_edge = new GraphEdge({node_one: prev_node, node_two: next_node});
+                        new_graph.add_edge(next_edge);
+                    }
+                }
+
+                return new_graph;
+            }
+
+            var GridView = marionette.ItemView.extend({
+                template: handlebars.compile( $templates.find("#grid-view-template").html() ),
+                initialize:function(){
+
+                    // initially, the grid is not in 'wall' mode, which allows users
+                    // to build walls in the maze
+                    this.wall_mode = false;
+
+                },
+                ui:{
+                    "wall_building_label": "#wall_building_label"
+                },
+                events:{
+
+                    // this'll bind to this.$el, and we can handle all the grid node 'clicks' there
+                    'click': 'onGridViewClick',
+
+                    'mouseover': 'onGridViewMouseOver'
+                },
+                eventTargetIsGridNode: function(e){
+                    if(!e) return false;
+                    if(!e.target) return false;
+
+                    // the grid nodes have an id and a specific class
+                    // we can try to detect
+                    var target = e.target,
+                        id = target.id,
+                        className = target.className;
+
+                    return id != null &&
+                           className != null &&
+                           className.search(grid_node_classname) >= 0;
+                },
+                divIsAWallNode: function(div){
+                    if(!div) return false;
+
+                    var className = div.className;
+
+                    return className != null &&
+                           className.search(wall_node_classname) >= 0;
+                },
+                onGridViewClick: function(e){
+
+                    // for now, delegate grid-node clicks to another handler
+                    // and ignore all other clicks on this.$el
+                    if(this.eventTargetIsGridNode(e)) this.onGridNodeClick(e.target);
+                },
+                onGridViewMouseOver: function(e){
+
+                    // if the user isn't building walls right now, ignore this event.
+                    // they have to toggle 'wall-mode' on by clicking a grid node
+                    if(this.wall_mode === false) return;
+
+                    // only handle/delegate mouse-over events for grid nodes
+                    if(this.eventTargetIsGridNode(e)) this.onGridNodeMouseOver(e.target);
+                },
+                turnWallBuildingOn:function(initiatingDiv){
+                    this.ui.wall_building_label.show();
+                    this.wall_mode = true;
+
+                    // also, treat the click as a mouse-over for the initiating node,
+                    // so that it's treated as a wall
+                    this.onGridNodeMouseOver(initiatingDiv);
+                },
+                turnWallBuildingOff:function(terminalDiv){
+                    this.ui.wall_building_label.hide();
+                    this.wall_mode = false;
+                },
+                onGridNodeClick: function(div){
+                    
+                    // if the user is already in 'wall' mode and then they click
+                    // on a grid, then wall-mode should now toggle OFF
+                    if(this.wall_mode === true){
+                        this.turnWallBuildingOff(div);
+
+                    // otherwise, toggle wall-mode on
+                    }else{
+                        this.turnWallBuildingOn(div);
+                    }
+                },
+                onGridNodeMouseOver: function(div){
+
+                    if(this.divIsAWallNode(div)){
+
+                        // yuck - this is pretty inefficient just to add a class ...
+                        // maybe there's a better/faster way to do it?
+                        // TODO - revisit this implementation
+                        $(div).removeClass(wall_node_classname);
+
+                    }else{
+
+                        // yuck - this is pretty inefficient just to add a class ...
+                        // maybe there's a better/faster way to do it?
+                        // TODO - revisit this implementation
+                        $(div).addClass(wall_node_classname);
+                    }
+                },
+                className: 'grid-view',
+                serializeData: function(){ return this.model; } // the model is plain JSON for this view ...
+            });
+            
+            var RootLayout = marionette.LayoutView.extend({
+                el: '#body',
+                template: handlebars.compile( $templates.find('#root-view-template').html() ),
+                regions:{
+                    'errors': '#errors',
+                    'main-body': '#main-body'
+                },
+                ui:{
+                    selectGridDimension: '#grid-dimension'
+                },
+                events:{
+                    'change @ui.selectGridDimension': 'onGridSelectionChange'
+                },
+                onGridSelectionChange: function(e){
+                    var grid_size = e.target.value || '',
+                        main_body_region = this.getRegion('main-body');
+
+                    // if user has cleared their grid selection, just blow away
+                    // the currently-displayed maze
+                    if(grid_size === ''){
+                        main_body_region.empty();
+                        return;
+                    }
+
+                    var grid_size = parseInt(grid_size);
+
+                    if(isNaN(grid_size) || !grid_size) return;
+
+                    var new_view_model = {
+                        grid_size: grid_size,
+                        graph: createNewGraph(grid_size)
+                    };
+
+                    main_body_region.show(new GridView({model: new_view_model}));
+                }
+            });
+
+            var Homepage = marionette.ItemView.extend({
+                template: handlebars.compile( $templates.find("#homepage-template").html() ),
+                initialize: function(){
+                    this.model = new backbone.Model({name: 'amir'});
+                }
+            });
+
+            var Application = marionette.Application.extend({
+                    initialize: function(options){
+                        options = options || {};
+                        this.rootView = options.rootView || new RootLayout();
+                    }
+                }),
+
+                // immediately initialize the app, so it can be used in the router ...
+                app = new Application();
+
+            var Router = backbone.Router.extend({
+                routes:{
+                    "": "home"
+                },
+
+                "home": function(){
+                    console.log("hi from the home route");
+                    app.rootView.render();
+                    app.rootView.getRegion('main-body').show(new Homepage());
+                }
+            });
+
+            app.on('start',function(){
+                new Router();
+                backbone.history.start();
+            });
+
+            app.start();
+
+        })(window,jQuery,_,Handlebars,Backbone,Marionette);
+    

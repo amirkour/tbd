@@ -12,9 +12,15 @@ port = process.argv[2] or 3000
 # where public/static assets will be served from
 absolutePathToPublicAssets = process.argv[3] or path.join __dirname, 'public'
 
+# location of .styl files
+absolutePathToStylusAssets = process.argv[4] or path.join __dirname, "src/styl"
+console.log("stylus files should be here: #{absolutePathToStylusAssets}")
+
 # this has to be the fully-qualified path to a folder, typically "/templates",
-# where view templates will be found
-absolutePathToTemplateFolder = process.argv[4] or path.join __dirname, 'templates'
+# (in this case: /views) where view templates will be found
+absolutePathToTemplateFolder = process.argv[5] or path.join __dirname, 'views'
+console.log("jade templates/views should be here: #{absolutePathToTemplateFolder}")
+
 app = express()
 
 # To parse x-www-form-urlencoded request bodies Express.js can use urlencoded()
@@ -36,7 +42,7 @@ app.use(express.static(absolutePathToPublicAssets))
 # <link href="/foo.css" ... />
 #
 # see!?  exclude the 'public' folder ...
-app.use(stylus.middleware(absolutePathToPublicAssets))
+app.use(stylus.middleware(absolutePathToStylusAssets))
 
 # enable jade templates
 app.set('views', absolutePathToTemplateFolder)
@@ -59,7 +65,7 @@ app.get "/search", (req,res) ->
 # test out a template!
 app.get '/home', (req,res) ->
     console.log("/home")
-    res.render('index', {date: new Date().toDateString()})
+    res.render('home/index', {date: new Date().toDateString()})
 
 # parse/barf form params!
 app.post '/form', (req,res) ->
@@ -76,6 +82,12 @@ app.post '/form', (req,res) ->
 
     strReversed = req.body.str.split('').reverse().join('')
     res.end(strReversed)
+
+app.get "/", (req,res) ->
+    res.render 'index'
+
+app.get "/spa", (req,res) ->
+    res.render 'spa/index'
 
 console.log('listening on port ' + port)
 app.listen(port)

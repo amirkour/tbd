@@ -1,0 +1,27 @@
+extends layout.jade
+
+block body
+    p i'm a red paragraph!?
+    hr
+
+    h1 and i'm a form to post
+    form(method="post", action="/form")
+        input(name="str", type="text")
+        input(type="submit", value="post!")
+    hr
+
+    a(href="/search?a=b&c=d") a cheeky search w/ query params
+    hr
+
+    a(href="/home") a cheeky template
+    hr
+
+    a(href="/spa") an spa crash course
+
+    script(type="text/javascript", src="/bundle.js")
+    script(type="text/javascript").
+        document.body.onload = function(){
+            var a = new Graph();
+            var b = new GraphNode();
+            var c = {};
+        }
