@@ -27,7 +27,8 @@ block body
 
         (function(window,$,_,handlebars,backbone,marionette,undefined){
 
-            var $templates = $("#templates")
+            var $templates = $("#templates"),
+                grid_node_classname = 'grid-node';
 
             /*
              * handlebars.buildGridView
@@ -49,7 +50,7 @@ block body
                 for(i = 0; i < grid_size; i++){
                     html += '<div class="grid-row">';
                     for(j = 0; j < grid_size; j++){
-                        html += "<div class='grid-node' id='" + j + "," + i + "' />";
+                        html += "<div class='" + grid_node_classname + "' id='" + j + "," + i + "' />";
                     }
                     html += "</div>";
                 }
@@ -97,6 +98,34 @@ block body
 
             var GridView = marionette.ItemView.extend({
                 template: handlebars.compile( $templates.find("#grid-view-template").html() ),
+                events:{
+
+                    // this'll bind to this.$el, and we can handle all the grid node 'clicks' there
+                    'click': 'onGridViewClick'
+                },
+                eventTargetIsGridNode: function(e){
+                    if(!e) return false;
+                    if(!e.target) return false;
+
+                    // the grid nodes have an id and a specific class
+                    // we can try to detect
+                    var target = e.target,
+                        id = target.id,
+                        className = target.className;
+
+                    return id != null &&
+                           className != null &&
+                           className.search(grid_node_classname) >= 0;
+                },
+                onGridViewClick: function(e){
+
+                    // for now, delegate grid-node clicks to another handler
+                    // and ignore all other clicks on this.$el
+                    if(this.eventTargetIsGridNode(e)) this.onGridNodeClick(e.target);
+                },
+                onGridNodeClick: function(div){
+                    alert('handling grid node click for id ' + div.id);
+                },
                 className: 'grid-view',
                 serializeData: function(){ return this.model; } // the model is plain JSON for this view ...
             });
