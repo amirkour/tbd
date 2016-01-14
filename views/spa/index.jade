@@ -28,7 +28,8 @@ block body
         (function(window,$,_,handlebars,backbone,marionette,undefined){
 
             var $templates = $("#templates"),
-                grid_node_classname = 'grid-node';
+                grid_node_classname = 'grid-node',
+                wall_node_classname = 'grid-wall';
 
             /*
              * handlebars.buildGridView
@@ -98,10 +99,19 @@ block body
 
             var GridView = marionette.ItemView.extend({
                 template: handlebars.compile( $templates.find("#grid-view-template").html() ),
+                initialize:function(){
+
+                    // initially, the grid is not in 'wall' mode, which allows users
+                    // to build walls in the maze
+                    this.wall_mode = false;
+
+                },
                 events:{
 
                     // this'll bind to this.$el, and we can handle all the grid node 'clicks' there
-                    'click': 'onGridViewClick'
+                    'click': 'onGridViewClick',
+
+                    'mouseover': 'onGridViewMouseOver'
                 },
                 eventTargetIsGridNode: function(e){
                     if(!e) return false;
@@ -117,14 +127,62 @@ block body
                            className != null &&
                            className.search(grid_node_classname) >= 0;
                 },
+                divIsAWallNode: function(div){
+                    if(!div) return false;
+
+                    var className = div.className;
+
+                    return className != null &&
+                           className.search(wall_node_classname) >= 0;
+                },
                 onGridViewClick: function(e){
 
                     // for now, delegate grid-node clicks to another handler
                     // and ignore all other clicks on this.$el
                     if(this.eventTargetIsGridNode(e)) this.onGridNodeClick(e.target);
                 },
+                onGridViewMouseOver: function(e){
+
+                    // if the user isn't building walls right now, ignore this event.
+                    // they have to toggle 'wall-mode' on by clicking a grid node
+                    if(this.wall_mode === false) return;
+
+                    // only handle/delegate mouse-over events for grid nodes
+                    if(this.eventTargetIsGridNode(e)) this.onGridNodeMouseOver(e.target);
+                },
                 onGridNodeClick: function(div){
-                    alert('handling grid node click for id ' + div.id);
+                    
+                    // if the user is already in 'wall' mode and then they click
+                    // on a grid, then wall-mode should now toggle OFF
+                    if(this.wall_mode === true){
+
+                        this.wall_mode = false;
+
+                    // otherwise, toggle wall-mode on
+                    }else{
+                        this.wall_mode = true;
+
+                        // also, treat the click as a mouse-over for the initiating node,
+                        // so that it's treated as a wall
+                        this.onGridNodeMouseOver(div);
+                    }
+                },
+                onGridNodeMouseOver: function(div){
+
+                    if(this.divIsAWallNode(div)){
+
+                        // yuck - this is pretty inefficient just to add a class ...
+                        // maybe there's a better/faster way to do it?
+                        // TODO - revisit this implementation
+                        $(div).removeClass(wall_node_classname);
+
+                    }else{
+
+                        // yuck - this is pretty inefficient just to add a class ...
+                        // maybe there's a better/faster way to do it?
+                        // TODO - revisit this implementation
+                        $(div).addClass(wall_node_classname);
+                    }
                 },
                 className: 'grid-view',
                 serializeData: function(){ return this.model; } // the model is plain JSON for this view ...
