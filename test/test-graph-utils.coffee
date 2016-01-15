@@ -118,3 +118,43 @@ describe "GraphUtils", ->
             assert.isFalse( GraphUtils.quacks_like_a_graph(a) )
             
     # quacks_like_a_graph
+
+    describe "#quacks_like_a_maze_node", ->
+        it "returns true when something quacks like a maze node", ->
+            a = {
+                x: 1
+                y: 2
+                is_wall: true
+            }
+            assert( GraphUtils.quacks_like_a_maze_node(a) )
+
+        it "returns false when if the object doesn't quack like a graph node", ->
+            a = {
+                x: 'hi'
+            }
+            assert.isFalse( GraphUtils.quacks_like_a_graph_node(a) )
+            assert.isFalse( GraphUtils.quacks_like_a_maze_node(a) )
+
+        it "returns false when is_wall is not a boolean undefined", ->
+            # is_wall undefined
+            a = {
+                x:1
+                y:2
+            }
+            assert.isFalse( GraphUtils.quacks_like_a_maze_node(a) )
+
+            # is_wall null
+            a = {
+                x:1
+                y:2
+                is_wall: null
+            }
+            assert.isFalse( GraphUtils.quacks_like_a_maze_node(a) )
+
+            # is_wall not a boolean
+            a = {
+                x:1
+                y:2
+                is_wall:'hi'
+            }
+            assert.isFalse( GraphUtils.quacks_like_a_maze_node(a) )

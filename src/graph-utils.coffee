@@ -14,6 +14,12 @@ GraphUtils = {
                             graph.nodes instanceof Array and
                             graph.edges instanceof Array
         true
+
+    quacks_like_a_maze_node: (maze_node) ->
+        return false unless maze_node and
+                            this.quacks_like_a_graph_node(maze_node) and
+                            typeof maze_node.is_wall is "boolean"
+        true
 }
 
 module.exports = GraphUtils
