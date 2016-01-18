@@ -10,6 +10,8 @@ block body
             {{buildGridView}}
             div
                 span#wall_building_label.display_none wall-building is now ON
+            div
+                button#set_start_button(type="button", autocomplete="off") Set Start Location
 
         script(type="text/template")#root-view-template
             div#errors
@@ -101,22 +103,72 @@ block body
 
             var GridView = marionette.ItemView.extend({
                 template: handlebars.compile( $templates.find("#grid-view-template").html() ),
+                className: 'grid-view',
+                serializeData: function(){ return this.model; }, // the model is plain JSON for this view ...
                 initialize:function(){
 
                     // initially, the grid is not in 'wall' mode, which allows users
                     // to build walls in the maze
                     this.wall_mode = false;
 
+                    // initially, the user is not trying to set a start
+                    // location for the maze
+                    this.start_location_mode = false;
                 },
                 ui:{
-                    "wall_building_label": "#wall_building_label"
+                    "wall_building_label": "#wall_building_label",
+                    "set_start_button": "#set_start_button"
                 },
                 events:{
 
                     // this'll bind to this.$el, and we can handle all the grid node 'clicks' there
                     'click': 'onGridViewClick',
 
-                    'mouseover': 'onGridViewMouseOver'
+                    'mouseover': 'onGridViewMouseOver',
+                    "click @ui.set_start_button": "toggleStartLocationMode"
+                },
+
+                /*
+                 * setNewStartNode
+                 *
+                 * helper that will find the graph node corresponding to the given
+                 * div in the view and set it to the start node, while simeltatneously
+                 * ensuring all other nodes are NOT the start node.  If no graph node
+                 * is found for the given div, this helper essentially just removes any
+                 * start-nodes currently present in the graph.
+                 *
+                 * Returns the resulting new start node.
+                 */
+                setNewStartNode: function(div){
+                    if(!div) return null;
+
+                    var id = div.id;
+                    if(!id) return null;
+
+                    var idElements = id.split(",");
+                    if(idElements.length !== 2) return null;
+
+                    var col = parseInt(idElements[0]),
+                        row = parseInt(idElements[1]),
+
+                        // remember: the model is just the JSON graph!
+                        nodes = this.model.graph.nodes,
+                        i = 0,
+                        iLen = nodes.length,
+                        nextNode = null,
+                        resultingStartNode = null;
+
+                    for(; i < iLen; i++){
+                        nextNode = nodes[i];
+                        if(nextNode.x === col && nextNode.y === row){
+                            resultingStartNode = nextNode;
+                            resultingStartNode.is_start = true;
+                        }else{
+                            nextNode.is_start = false;
+                        }
+                    }
+
+                    return resultingStartNode;
                 },
                 eventTargetIsGridNode: function(e){
                     if(!e) return false;
@@ -132,7 +184,7 @@ block body
                            className != null &&
                            className.search(grid_node_classname) >= 0;
                 },
-                divIsAWallNode: function(div){
+                divIsWallNode: function(div){
                     if(!div) return false;
 
                     var className = div.className;
@@ -168,6 +220,20 @@ block body
                     this.wall_mode = false;
                 },
                 onGridNodeClick: function(div){
+
+                    // clicking on a grid node could behave in different
+                    // ways depending on which 'modes' are currently toggled
+                    // by the user...
+
+                    // ... if they were just selecting a new start node,
+                    // toggle the 'start mode' off
+                    // and return immediately.
+                    if(this.start_location_mode === true){
+                        this.toggleStartLocationMode();
+                        this.setNewStartNode(div);
+
+                        return;
+                    }
                     
                     // if the user is already in 'wall' mode and then they click
                     // on a grid, then wall-mode should now toggle OFF
@@ -181,7 +247,7 @@ block body
                 },
                 onGridNodeMouseOver: function(div){
 
-                    if(this.divIsAWallNode(div)){
+                    if(this.divIsWallNode(div)){
 
                         // yuck - this is pretty inefficient just to add a class ...
                         // maybe there's a better/faster way to do it?
@@ -196,8 +262,17 @@ block body
                         $(div).addClass(wall_node_classname);
                     }
                 },
-                className: 'grid-view',
-                serializeData: function(){ return this.model; } // the model is plain JSON for this view ...
+                toggleStartLocationMode: function(){
+
+                    // if start-location mode is on, then the user just turned it off
+                    if(this.start_location_mode === true){
+                        this.start_location_mode = false;
+                        this.ui.set_start_button.removeAttr('disabled');
+                    }else{
+                        this.start_location_mode = true;
+                        this.ui.set_start_button.attr('disabled','true');
+                    }
+                }
             });
             
             var RootLayout = marionette.LayoutView.extend({
